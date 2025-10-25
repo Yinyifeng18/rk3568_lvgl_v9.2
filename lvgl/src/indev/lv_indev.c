@@ -674,15 +674,33 @@ static void indev_pointer_proc(lv_indev_t * i, lv_indev_data_t * data)
     i->pointer.last_raw_point.x = data->point.x;
     i->pointer.last_raw_point.y = data->point.y;
 
+    //printf("x:%d y:%d\n", data->point.x, data->point.y);
+    //printf("hor_res:%d ver_res:%d\n", disp->hor_res, disp->ver_res);
+
     if(disp->rotation == LV_DISPLAY_ROTATION_180 || disp->rotation == LV_DISPLAY_ROTATION_270) {
         data->point.x = disp->hor_res - data->point.x - 1;
         data->point.y = disp->ver_res - data->point.y - 1;
     }
-    if(disp->rotation == LV_DISPLAY_ROTATION_90 || disp->rotation == LV_DISPLAY_ROTATION_270) {
-        int32_t tmp = data->point.y;
-        data->point.y = data->point.x;
-        data->point.x = disp->ver_res - tmp - 1;
+    //if(disp->rotation == LV_DISPLAY_ROTATION_90 || disp->rotation == LV_DISPLAY_ROTATION_270) {
+    //    int32_t tmp = data->point.y;
+    //    data->point.y = data->point.x;
+    //    data->point.x = disp->ver_res - tmp - 1;
+    //}
+    if(disp->rotation == LV_DISPLAY_ROTATION_270)
+    {
+        data->point.x = data->point.x;
+        data->point.y = disp->hor_res - data->point.y - 1;
+        //printf("new 270 ==> x:%d y:%d\n", data->point.x, data->point.y);
     }
+    else if(disp->rotation == LV_DISPLAY_ROTATION_90)
+    {
+        int32_t tmp = data->point.x;
+        data->point.x = disp->ver_res - data->point.y - 1;
+        data->point.y = tmp;
+        //printf("new 90 ==> x:%d y:%d\n", data->point.x, data->point.y);
+    }
+    
+
 
     /*Simple sanity check*/
     if(data->point.x < 0) {
