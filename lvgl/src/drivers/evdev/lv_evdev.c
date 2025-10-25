@@ -152,7 +152,14 @@ static void _evdev_read(lv_indev_t * indev, lv_indev_data_t * data)
             break;
         case LV_INDEV_TYPE_POINTER:
             data->state = dsc->state;
+            
+            //printf("LV_INDEV_TYPE_POINTER: root_x:%d, root_y:%d\n", dsc->root_x, dsc->root_y);
             data->point = _evdev_process_pointer(indev, dsc->root_x, dsc->root_y);
+            //data->point.x = 1280 - dsc->root_y;
+            //data->point.y = dsc->root_x;
+            data->point.x = dsc->root_x;
+            data->point.y = dsc->root_y;
+            //printf("LV_INDEV_TYPE_POINTER: x:%d, y:%d\n", data->point.x, data->point.y);
             break;
         default:
             break;
