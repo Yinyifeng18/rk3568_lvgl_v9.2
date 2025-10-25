@@ -10,6 +10,14 @@
 #include "lv_code/lv_code.h"
 #include "lv_code/src/lv_main.h"
 
+
+// 添加必要的宏定义（请根据实际屏幕尺寸调整）
+#define MY_DISP_HOR_RES    1280
+#define MY_DISP_VER_RES    720
+#define BYTE_PER_PIXEL     4  // ARGB8888
+
+
+
 static pthread_mutex_t lvgl_mutex;
 static const char *getenv_default(const char *name, const char *dflt)
 {
@@ -23,6 +31,13 @@ static void lv_linux_disp_init(void)
     lv_display_t * disp = lv_linux_fbdev_create();
 
     lv_linux_fbdev_set_file(disp, device);
+
+    static uint8_t buf_2_1[MY_DISP_HOR_RES * MY_DISP_VER_RES * BYTE_PER_PIXEL];
+    static uint8_t buf_2_2[MY_DISP_HOR_RES * MY_DISP_VER_RES * BYTE_PER_PIXEL];
+
+    lv_display_set_buffers(disp, buf_2_1, buf_2_2, sizeof(buf_2_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
+ 
+    lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90);
 }
 #elif LV_USE_LINUX_DRM
 static void lv_linux_disp_init(void)
@@ -54,6 +69,9 @@ void lvgl_unlock(void)
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
+// 自定义触摸处理函数，适配硬件顺时针旋转但LVGL按逆时针处理的情况
+
+
 int main(void)
 {
     pthread_mutex_init(&lvgl_mutex, NULL);
@@ -65,9 +83,13 @@ int main(void)
     /*Create a Demo*/
     //lv_demo_widgets();
     // lv_demo_widgets_start_slideshow();
-    lv_indev_t * indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event2");    
 
-    lv_main();
+    // 创建自定义触摸输入设备
+     lv_indev_t *indev = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event2");
+
+ 
+    //lv_main();
+    lv_demo_widgets();
 
     /*Handle LVGL tasks*/
     while(1) 
